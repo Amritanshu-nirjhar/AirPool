@@ -6,21 +6,33 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node lib/matching.test.ts && node lib/waitlist.test.ts && node --no-warnings lib/waitlist-store.test.ts",
+    "routes": "node scripts/fetch-routes.mjs",
+    "osm": "node scripts/fetch-osm.mjs",
+    "postinstall": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs public/"
   },
   "dependencies": {
+    "framer-motion": "^14.9.0",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.27",
+    "maplibre-gl": "^6.16.0",
     "next": "16.4.3",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
-    "@types/node": "^20",
+    "@types/node": "^22.20.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.187.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "playwright-core": "^1.64.1",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "type": "module"
 }
