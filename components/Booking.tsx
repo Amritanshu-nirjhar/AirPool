@@ -306,6 +306,9 @@ export default function Booking() {
                         ))}
                       </dl>
 
+                      <p className="label mt-8">WHO SITS WHERE</p>
+                      <SeatMap riders={[...group.members.map((m) => m.name), "You"]} share={match.share} />
+
                       <p className="label mt-8">DROP SEQUENCE</p>
                       <ol className="relative mt-4 space-y-4 pl-6">
                         <span className="absolute bottom-2 left-[5px] top-2 w-px bg-gradient-to-b from-white via-flare to-taxi" aria-hidden />
@@ -448,6 +451,35 @@ function RidePass({ group, share, travellers, confirmed }: { group: Group; share
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+/** Top-down car (nose up, right-hand drive). Riders fill the seats; each seat shows that rider's share. */
+function SeatMap({ riders, share }: { riders: string[]; share: number }) {
+  // you ride up front next to the driver; co-travellers take the rear seats, outer seats first
+  const you = riders[riders.length - 1], others = riders.slice(0, -1);
+  const seats: { x: number; y: number; who?: string }[] = [
+    { x: 30, y: 78, who: you },
+    { x: 30, y: 150, who: others[0] },
+    { x: 110, y: 150, who: others[1] },
+    { x: 70, y: 150, who: others[2] },
+  ];
+  return (
+    <svg viewBox="0 0 200 236" className="mx-auto mt-4 w-full max-w-[15rem]" role="img" aria-label={`Seat map: ${riders.join(", ")} share the car, ${inr(share)} each`}>
+      <rect x="14" y="8" width="172" height="220" rx="44" fill="#fff" stroke="rgba(14,33,28,0.25)" strokeWidth="2" />
+      <path d="M40 58 Q100 34 160 58" fill="none" stroke="rgba(14,33,28,0.3)" strokeWidth="3" />
+      <path d="M44 204 Q100 216 156 204" fill="none" stroke="rgba(14,33,28,0.18)" strokeWidth="3" />
+      {/* driver (right-hand drive) */}
+      <rect x="110" y="78" width="60" height="52" rx="12" fill="rgba(14,33,28,0.06)" stroke="rgba(14,33,28,0.2)" />
+      <text x="140" y="108" textAnchor="middle" fontSize="10" fill="#59615c" fontFamily="var(--font-plex-mono)">DRIVER</text>
+      {seats.map((st, i) => st.who && (
+        <motion.g key={st.who} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 + i * 0.12, type: "spring", stiffness: 260, damping: 20 }} style={{ transformOrigin: `${st.x + 30}px ${st.y + 26}px` }}>
+          <rect x={st.x} y={st.y} width={st.who === you ? 60 : 50} height="52" rx="12" fill={st.who === you ? "#8a6128" : "rgba(14,33,28,0.1)"} />
+          <text x={st.x + (st.who === you ? 30 : 25)} y={st.y + 23} textAnchor="middle" fontSize="11" fontWeight="600" fill={st.who === you ? "#fff" : "#0e211c"}>{st.who}</text>
+          <text x={st.x + (st.who === you ? 30 : 25)} y={st.y + 39} textAnchor="middle" fontSize="10" fill={st.who === you ? "#fff" : "#59615c"} fontFamily="var(--font-plex-mono)">{inr(share)}</text>
+        </motion.g>
+      ))}
+    </svg>
   );
 }
 

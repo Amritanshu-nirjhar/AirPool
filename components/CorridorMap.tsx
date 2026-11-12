@@ -267,11 +267,10 @@ export default function CorridorMap({ group, youDest = "cyberCity", scene, progr
     <div className={`relative overflow-hidden bg-ink-2 ${className}`}>
       <div ref={host} className="!absolute inset-0" role="region" aria-label={`Map of route ${stops.map((s) => PLACES[s].short).join(" to ")}`} />
       {status === "loading" && (
-        <div className="absolute inset-0 grid place-items-center bg-ink-2" role="status">
-          <div className="flex flex-col items-center gap-3 text-sm text-muted">
-            <span className="h-10 w-10 animate-spin rounded-full border-2 border-flare/20 border-t-flare" aria-hidden />
-            Loading 3D corridor…
-          </div>
+        // skeleton: the real route sketched on paper while tiles load
+        <div className="absolute inset-0 bg-ink-2" role="status" aria-label="Loading map">
+          <RouteSvg routeKey={group.routeKey} className="h-full w-full animate-pulse opacity-40" />
+          <p className="mono absolute bottom-4 left-4 text-[11px] text-muted">Loading map…</p>
         </div>
       )}
 

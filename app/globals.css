@@ -291,21 +291,9 @@ body {
   transform: rotate(-45deg) scale(1.25);
 }
 
-/* Kerbside sign marquee */
-.kerb-track {
-  animation: kerb 38s linear infinite;
-}
-@keyframes kerb {
-  to {
-    transform: translateX(-50%);
-  }
-}
 
 
 @media (prefers-reduced-motion: reduce) {
-  .kerb-track {
-    animation: none;
-  }
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
@@ -566,4 +554,33 @@ html.lenis, html.lenis body { height: auto; }
 .mood-paper .btn-primary {
   background: var(--color-text);
   color: var(--color-ink);
+}
+
+/* ---------- Launch pass: tilts toward the pointer, foil highlight follows ---------- */
+.pass-tilt {
+  transform: perspective(1400px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+.pass-tilt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgb(255 236 190 / 0.35), transparent 38%);
+  mix-blend-mode: soft-light;
+}
+
+/* ---------- Focus and press: one brass ring everywhere, buttons press down ---------- */
+:focus-visible {
+  outline: 2px solid var(--color-brass);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+}
+.btn {
+  -webkit-tap-highlight-color: transparent;
 }

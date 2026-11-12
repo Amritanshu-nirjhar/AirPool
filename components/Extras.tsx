@@ -1,5 +1,5 @@
 "use client";
-import { motion, useScroll, useSpring, useTransform, useVelocity } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll, useSpring, useTransform, useVelocity } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { AREAS, ARRIVAL, FREQUENCY, type Area, type Signup } from "@/lib/waitlist";
 import { useReduced } from "./ui";
@@ -19,8 +19,8 @@ const icon = (k: keyof typeof Pict) => (
 const SIGN = [
   { i: "arrive", hi: "आगमन", en: "Arrivals" },
   { i: "bag", hi: "सामान", en: "Baggage reclaim" },
-  { i: "group", hi: "साझा सवारी", en: "AirPool meeting point" },
-  { i: "car", hi: "पिलर 4", en: "Pillar 4 · Kerb pickup" },
+  { i: "group", hi: "पिलर 4", en: "Pillar 4 · Meet your group" },
+  { i: "car", hi: "आपकी कार", en: "Your shared car" },
 ] as const;
 
 export function Kerbside() {
@@ -30,35 +30,31 @@ export function Kerbside() {
   const vel = useVelocity(scrollY);
   // scrolling down pushes the bottom edge away (sign tilts back), then a spring settles it
   const swing = useSpring(useTransform(vel, [-3000, 0, 3000], reduced ? [0, 0, 0] : [-14, 0, 14]), { stiffness: 90, damping: 9, mass: 0.6 });
-  const row = (hidden: boolean) => (
-    <div className="flex shrink-0 items-stretch" aria-hidden={hidden || undefined}>
-      {SIGN.map((s) => (
-        <div key={s.en} className="flex items-center gap-4 border-r-2 border-ink/80 px-7 py-4 md:px-10 md:py-5">
-          {icon(s.i)}
-          <div className="leading-tight">
-            <p className="text-sm font-semibold md:text-base" lang="hi">{s.hi}</p>
-            <p className="whitespace-nowrap text-base font-bold tracking-[-0.02em] md:text-xl">{s.en}</p>
-          </div>
-          <span className="ml-3 text-2xl font-bold md:text-3xl" aria-hidden>→</span>
-        </div>
-      ))}
-    </div>
-  );
+  // the walk from the gate to the car: the current step lights up as the sign crosses the screen
+  const { scrollYProgress } = useScroll({ target: wrap, offset: ["start 85%", "end 25%"] });
+  const [lit, setLit] = useState(0);
+  useMotionValueEvent(scrollYProgress, "change", (v) => setLit(Math.min(SIGN.length - 1, Math.floor(v * SIGN.length))));
   return (
-    <section ref={wrap} aria-label="Terminal 3 wayfinding" className="relative bg-ink pb-10 pt-16 [perspective:900px]">
+    <section ref={wrap} aria-label="Terminal 3 wayfinding: from arrivals to your shared car" className="relative bg-ink pb-10 pt-16 [perspective:900px]">
       {/* gantry cables */}
       <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto flex h-16 max-w-5xl justify-between px-[12%]" aria-hidden>
         <span className="w-[3px] bg-gradient-to-b from-night/0 via-night/50 to-night/80" />
         <span className="w-[3px] bg-gradient-to-b from-night/0 via-night/50 to-night/80" />
       </div>
       {/* the sign hangs from its top edge and swings with scroll velocity */}
-      <motion.div style={{ rotateX: swing, transformOrigin: "50% 0%" }} className="relative border-y-[3px] border-night bg-sign text-night shadow-[0_24px_40px_-24px_rgba(15,61,52,0.5)]">
-        <div className="flex overflow-hidden">
-          <div className="kerb-track flex">
-            {row(false)}
-            {row(true)}
-          </div>
-        </div>
+      <motion.div style={{ rotateX: swing, transformOrigin: "50% 0%" }} className="relative border-y-[3px] border-[#0b2a23] bg-sign text-[#0b2a23] shadow-[0_24px_40px_-24px_rgba(15,61,52,0.5)]">
+        <ol className="mx-auto grid max-w-7xl grid-cols-2 lg:grid-cols-4">
+          {SIGN.map((s, i) => (
+            <li key={s.en} aria-current={i === lit ? "step" : undefined} className={`flex items-center gap-3 border-[#0b2a23]/70 px-5 py-4 transition-opacity duration-500 md:gap-4 md:px-8 md:py-5 lg:border-r-2 lg:last:border-r-0 ${i <= lit ? "opacity-100" : "opacity-35"}`}>
+              {icon(s.i)}
+              <div className="leading-tight">
+                <p className="text-sm font-semibold md:text-base" lang="hi">{s.hi}</p>
+                <p className="text-base font-bold tracking-[-0.02em] md:text-lg">{s.en}</p>
+              </div>
+              <span className={`ml-auto text-2xl font-bold transition-transform duration-500 ${i === lit ? "translate-x-0" : "-translate-x-2 opacity-0"}`} aria-hidden>{i === SIGN.length - 1 ? "●" : "→"}</span>
+            </li>
+          ))}
+        </ol>
       </motion.div>
       <p className="mono mt-3 px-5 text-right text-[10px] text-muted md:px-10">Illustrative signage · pickup pillar is a demo value</p>
     </section>
@@ -75,7 +71,55 @@ const V1 = [
 ];
 const NEXT = ["Flight-status sync for delays", "In-app payment & auto-split", "Rides to the airport", "More corridors: T1, Noida, South Delhi", "Women-only groups"];
 
+/** Drag the divider: one rider paying for the whole car vs three sharing it. */
+function SoloShared() {
+  const [v, setV] = useState(50);
+  const dot = (c: string) => <span className={`h-9 w-9 rounded-full border-2 border-[#07140f] md:h-11 md:w-11 ${c}`} />;
+  return (
+    <div className="mx-auto mt-16 max-w-3xl">
+      <div className="relative h-44 overflow-hidden rounded-2xl ring-1 ring-white/10 md:h-52">
+        {/* shared (underneath) */}
+        <div className="absolute inset-0 flex items-center justify-end gap-6 bg-[#10261f] px-6 text-right md:px-10">
+          <div>
+            <p className="mono text-[10px] text-muted">SHARED · 3 RIDERS · ONE CAR</p>
+            <p className="font-display text-5xl text-flare md:text-6xl">₹150 <span className="text-2xl text-text/70">each</span></p>
+          </div>
+          <div className="flex -space-x-3">{dot("bg-[#5b7f73]")}{dot("bg-[#c9a063]")}{dot("bg-[#f1ede3]")}</div>
+        </div>
+        {/* solo (on top, clipped to the divider) */}
+        <div className="absolute inset-0 flex items-center gap-6 bg-[#f4f1ea] px-6 text-[#0e211c] md:px-10" style={{ clipPath: `inset(0 ${100 - v}% 0 0)` }}>
+          <div className="flex">{dot("bg-[#0b2a23]")}</div>
+          <div>
+            <p className="mono text-[10px] text-[#59615c]">SOLO · 1 RIDER · WHOLE CAR</p>
+            <p className="font-display text-5xl md:text-6xl">₹450</p>
+          </div>
+        </div>
+        {/* divider */}
+        <div className="pointer-events-none absolute inset-y-0 w-0.5 bg-[#c9a063]" style={{ left: `${v}%` }} aria-hidden>
+          <span className="absolute left-1/2 top-1/2 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[#c9a063] text-[#07140f] shadow-lg">⇆</span>
+        </div>
+        <input type="range" min={5} max={95} value={v} onChange={(e) => setV(+e.target.value)} aria-label="Compare solo and shared fare" className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0" />
+      </div>
+      <p className="mono mt-3 text-center text-[10px] text-muted">Drag to compare · illustrative fares from the pitch, not live quotes</p>
+    </div>
+  );
+}
+
 export function LaunchScope() {
+  // the pass tilts toward the pointer and a foil highlight follows it
+  const tilt = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    e.currentTarget.style.setProperty("--rx", `${(0.5 - y) * 7}deg`);
+    e.currentTarget.style.setProperty("--ry", `${(x - 0.5) * 9}deg`);
+    e.currentTarget.style.setProperty("--mx", `${x * 100}%`);
+    e.currentTarget.style.setProperty("--my", `${y * 100}%`);
+  };
+  const untilt = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.style.setProperty("--rx", "0deg");
+    e.currentTarget.style.setProperty("--ry", "0deg");
+  };
   return (
     <section id="mvp" className="mood-night relative overflow-hidden" aria-labelledby="mvp-title">
       {/* soft brass light behind the pass */}
@@ -86,9 +130,11 @@ export function LaunchScope() {
           <h2 id="mvp-title" className="display display-xl mx-auto mt-5 max-w-[15ch] text-[clamp(2.4rem,5vw,4.4rem)]">Small on purpose. <span className="serif-word foil">One</span> corridor, done well.</h2>
         </div>
 
-        <div className="mx-auto mt-16 max-w-3xl md:mt-20">
+        <div className="pass-tilt mx-auto mt-16 max-w-3xl md:mt-20" onPointerMove={tilt} onPointerLeave={untilt}>
           <LaunchTicket />
         </div>
+
+        <SoloShared />
 
         <ol className="mx-auto mt-20 grid max-w-6xl gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-5">
           {V1.map(([t, d], i) => (
@@ -202,6 +248,52 @@ function LaunchTicket() {
   );
 }
 
+/** Draws the early-access pass to a canvas and downloads it as a PNG. Runs entirely in the browser. */
+function savePass(position: number, area: string) {
+  const c = document.createElement("canvas");
+  c.width = 1200;
+  c.height = 630;
+  const x = c.getContext("2d")!;
+  const sans = getComputedStyle(document.body).fontFamily;
+  x.fillStyle = "#07140f";
+  x.fillRect(0, 0, 1200, 630);
+  x.fillStyle = "#f4f1ea";
+  x.beginPath();
+  x.roundRect(60, 60, 1080, 510, 28);
+  x.fill();
+  x.fillStyle = "#0b2a23";
+  x.beginPath();
+  x.roundRect(60, 60, 1080, 96, [28, 28, 0, 0]);
+  x.fill();
+  x.fillStyle = "#d9b77a";
+  x.font = `700 40px ${sans}`;
+  x.fillText("AirPool", 104, 122);
+  x.font = `500 20px ${sans}`;
+  x.textAlign = "right";
+  x.fillText("EARLY ACCESS PASS", 1096, 118);
+  x.textAlign = "left";
+  x.fillStyle = "#59615c";
+  x.font = `500 22px ${sans}`;
+  x.fillText("YOUR PLACE", 104, 226);
+  x.fillStyle = "#0e211c";
+  x.font = `700 230px ${sans}`;
+  x.fillText(`#${position}`, 96, 440);
+  x.textAlign = "right";
+  x.fillStyle = "#59615c";
+  x.font = `500 22px ${sans}`;
+  x.fillText("CORRIDOR", 1096, 226);
+  x.fillStyle = "#0e211c";
+  x.font = `700 54px ${sans}`;
+  x.fillText(`DEL T3 → ${area}`, 1096, 292);
+  x.fillStyle = "#8a6128";
+  x.font = `500 26px ${sans}`;
+  x.fillText("Many travellers · One ride", 1096, 510);
+  const a = document.createElement("a");
+  a.download = `airpool-pass-${position}.png`;
+  a.href = c.toDataURL("image/png");
+  a.click();
+}
+
 /* ---------------- Early-access waitlist (posts to /api/waitlist) ---------------- */
 export function Waitlist() {
   const [email, setEmail] = useState("");
@@ -232,12 +324,30 @@ export function Waitlist() {
   };
   if (state.kind === "done")
     return (
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-10 max-w-lg rounded-2xl border border-text/10 bg-surface p-6" role="status">
-        <p className="mono text-[11px] text-flare">{state.existing ? "ALREADY ON THE LIST" : "YOU'RE IN"}</p>
-        <p className="mt-2 font-display text-3xl">#{state.position} for DEL T3 → {area}.</p>
-        <p className="mt-2 text-sm text-muted">We&apos;ll email {email.trim().toLowerCase()} when the corridor opens.</p>
-        <button type="button" onClick={shareAirPool} className="btn btn-ghost mt-5">Share AirPool with a co-traveller <span aria-hidden>↗</span></button>
-        {shared && <p className="mt-2 text-xs text-muted" role="status">{shared}</p>}
+      <motion.div initial={{ opacity: 0, y: 24, rotate: -2 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ type: "spring", stiffness: 140, damping: 16 }} className="mt-10 max-w-lg" role="status">
+        <div className="mood-paper paper overflow-hidden rounded-[20px] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.8)]">
+          <div className="flex items-center justify-between bg-[#0b2a23] px-6 py-3 text-[#f1ede3]">
+            <span className="flex items-center gap-2 font-brand text-lg font-bold"><Mark size={18} stem="#f1ede3" foil /><span className="foil">AirPool</span></span>
+            <span className="mono text-[10px] tracking-widest text-[#d9b77a]">{state.existing ? "ALREADY ON THE LIST" : "EARLY ACCESS PASS"}</span>
+          </div>
+          <div className="flex items-end justify-between px-6 pb-5 pt-5">
+            <div>
+              <p className="mono text-[10px] text-muted">YOUR PLACE</p>
+              <p className="font-display text-7xl leading-none">#{state.position}</p>
+            </div>
+            <div className="text-right">
+              <p className="mono text-[10px] text-muted">CORRIDOR</p>
+              <p className="font-display text-2xl">DEL T3 → {area}</p>
+              <p className="mono mt-1 text-[10px] text-muted">LANDS {arrival.toUpperCase()}</p>
+            </div>
+          </div>
+          <p className="border-t border-dashed border-text/20 px-6 py-3 text-sm text-muted">We&apos;ll email {email.trim().toLowerCase()} when the corridor opens.</p>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button type="button" onClick={() => savePass(state.position, area)} className="btn btn-primary">Save pass as image</button>
+          <button type="button" onClick={shareAirPool} className="btn btn-ghost">Share AirPool <span aria-hidden>↗</span></button>
+        </div>
+        {shared && <p className="mt-2 text-xs text-muted">{shared}</p>}
       </motion.div>
     );
   return (

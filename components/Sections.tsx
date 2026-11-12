@@ -45,7 +45,18 @@ function CheckRow({ t, d, i, onCheck }: { t: string; d: string; i: number; onChe
   );
 }
 
+// [field, example value, shown to co-travellers?]
+const PROFILE: [string, string, boolean][] = [
+  ["First name", "You", true],
+  ["Drop-off area", "Cyber City", true],
+  ["Surname", "·········", false],
+  ["Phone", "+91 98··· ·····", false],
+  ["Exact address", "Tower ··, DLF ······", false],
+  ["Flight", "6E 2134", false],
+];
+
 export function Safety() {
+  const [asOthers, setAsOthers] = useState(true);
   const [help, setHelp] = useState(false);
   const [checked, setChecked] = useState(0);
   const [optIn, setOptIn] = useState(false);
@@ -103,6 +114,27 @@ export function Safety() {
                 <p className="text-xs text-muted" role="status">
                   {optIn ? "Opted in." : "Not opted in."} {statusShare ? "Status sharing on." : "Status sharing off."} Nothing is pre-selected.
                 </p>
+              </div>
+              {/* what a stranger in your car actually sees of you */}
+              <div className="mt-6 border-t border-text/10 pt-5">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm font-medium">{asOthers ? "What a co-traveller sees of you" : "What you gave AirPool"}</p>
+                  <button type="button" role="switch" aria-checked={asOthers} onClick={() => setAsOthers((v) => !v)} className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${asOthers ? "bg-good" : "bg-text/20"}`} aria-label="Show what co-travellers see">
+                    <span className={`absolute top-1 h-5 w-5 rounded-full bg-surface shadow transition-all ${asOthers ? "left-6" : "left-1"}`} />
+                  </button>
+                </div>
+                <ul className="mt-3 space-y-2 text-sm">
+                  {PROFILE.map(([k, v, shared]) => (
+                    <li key={k} className="flex items-center justify-between gap-4">
+                      <span className="text-muted">{k}</span>
+                      <span className="relative font-mono text-[12px]">
+                        {v}
+                        {!shared && <span className={`absolute inset-y-0 -inset-x-1 origin-left rounded-sm bg-night transition-transform duration-500 ${asOthers ? "scale-x-100" : "scale-x-0"}`} aria-hidden />}
+                        {!shared && asOthers && <span className="sr-only"> (hidden from co-travellers)</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
               <button onClick={() => setHelp(true)} className="btn relative mt-6 w-full border border-bad/40 bg-bad/10 text-bad hover:bg-bad/15">
                 <span className="help-pulse pointer-events-none absolute inset-0 rounded-[8px] border border-bad/40" aria-hidden />
@@ -186,6 +218,7 @@ export function Closing() {
           <div className="md:col-span-4">
             <Logo tagline light />
             <p className="mt-4 max-w-xs">Shared airport mobility. Demo corridor: Delhi Airport (DEL) T3 → Cyber City, Gurugram.</p>
+            <a href="#top" className="mt-6 inline-flex min-h-11 items-center gap-2 text-text hover:text-flare">Back to top <span aria-hidden>↑</span></a>
           </div>
           <div className="md:col-span-5">
             <p className="text-text">About this demo</p>
