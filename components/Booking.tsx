@@ -271,7 +271,7 @@ export default function Booking() {
                             <p className="mt-1 text-sm text-muted">No open group fits even with relaxed limits. Get notified when one forms.</p>
                           )}
                           {notify ? (
-                            <p className="mt-4 text-sm text-good" role="status">You&apos;ll be notified if a compatible group forms. (Demo: nothing is sent.)</p>
+                            <p className="mt-4 text-sm text-good" role="status">You&apos;ll be notified if a compatible group forms. Demo only: nothing is sent to you.</p>
                           ) : (
                             <button onClick={() => setNotify(true)} className="btn btn-primary mt-4 w-full">Notify me when a group forms</button>
                           )}
@@ -387,9 +387,10 @@ export default function Booking() {
                           </ol>
                           <div className="mt-6 grid grid-cols-2 gap-2">
                             <button onClick={() => setHelp(true)} className="btn border border-bad/40 bg-bad/10 text-bad hover:bg-bad/15">Help</button>
-                            <button onClick={share} className="btn btn-ghost">Share trip</button>
+                            <button onClick={share} className="btn btn-ghost">Share trip summary</button>
                           </div>
                           {record && <p className="mono mt-5 text-[10.5px] text-muted">CONSENT RECORDED {new Date(record.acceptedAt).toLocaleTimeString()} · TERMS {record.termsVersion}</p>}
+                          <p className="mono mt-3 text-[10.5px] text-muted">Demo: Help, Share and status only exist in this page. Nothing is sent or stored.</p>
                           <button onClick={reset} className="mt-3 min-h-11 text-sm text-muted underline-offset-4 hover:text-text hover:underline">Start a new trip</button>
                         </>
                       )}

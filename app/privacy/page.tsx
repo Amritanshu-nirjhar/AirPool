@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Logo } from "@/components/Nav";
 
+const PRIVACY_EMAIL = process.env.NEXT_PUBLIC_PRIVACY_EMAIL ?? "";
+
 export const metadata: Metadata = { title: "Privacy · AirPool", description: "What AirPool's early-access waitlist collects and why." };
 
 export default function Privacy() {
@@ -25,7 +27,7 @@ export default function Privacy() {
         </section>
         <section>
           <h2 className="font-display text-2xl">Your rights</h2>
-          <p className="mt-2 text-muted">You can ask to see, correct or delete your data at any time, in line with India&apos;s Digital Personal Data Protection Act, 2023. Contact: <span className="mono text-text">privacy contact to be added before launch</span>.</p>
+          <p className="mt-2 text-muted">You can ask to see, correct or delete your data at any time, in line with India&apos;s Digital Personal Data Protection Act, 2023. Contact: {PRIVACY_EMAIL ? <a className="mono text-text underline underline-offset-2" href={`mailto:${PRIVACY_EMAIL}`}>{PRIVACY_EMAIL}</a> : <span className="mono text-warn">contact address is set before launch (NEXT_PUBLIC_PRIVACY_EMAIL)</span>}.</p>
         </section>
       </div>
       <Link href="/" className="btn btn-ghost mt-14">← Back to AirPool</Link>

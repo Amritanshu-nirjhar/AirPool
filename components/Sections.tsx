@@ -119,12 +119,12 @@ export function Safety() {
 
 /* ---------------- FAQ ---------------- */
 const FAQ: [string, string][] = [
-  ["What if my flight is delayed?", "Your request follows your arrival window. If you land outside it, you're re-matched with groups leaving later, or released with no charge if none fit. Automatic flight-status sync comes after the MVP."],
-  ["How much luggage can I bring?", "Tell us your bags when you request. AirPool only groups you into a car whose boot fits everyone's luggage."],
-  ["Can I cancel?", "Yes. Cancel free until your group is confirmed. Cancellation terms are shown before you join, never after."],
-  ["Is it safe to ride with strangers?", "Co-travellers see your first name and drop-off area only, never your phone number. Everyone opts in explicitly, Help is on every screen, and you can share your trip with someone you trust."],
-  ["How do I pay?", "In the MVP you pay your share, shown upfront, at drop-off. In-app payment and automatic splitting come next."],
-  ["Where does it work?", "At launch, Delhi Airport T3 arrivals to Gurugram: Cyber City, Golf Course Road and Sohna Road. More corridors follow."],
+  ["What if my flight is delayed?", "Planned: your request follows your arrival window. If you land outside it, you're matched with groups leaving later, or released without charge if none fit. Automatic flight-status sync comes after the MVP."],
+  ["How much luggage can I bring?", "Planned: you tell us your bags when you request, and AirPool only groups you into a car whose boot fits everyone's luggage."],
+  ["Can I cancel?", "Planned: free cancellation until your group is confirmed. Cancellation terms are shown before you join."],
+  ["Is it safe to ride with strangers?", "Planned: co-travellers see your first name and drop-off area only, never your phone number. Everyone opts in explicitly, Help is on every screen, and you can share your trip with someone you trust."],
+  ["How do I pay?", "Planned: you pay your share at drop-off, shown upfront. In-app payment and automatic splitting come next."],
+  ["Where does it work?", "Planned launch: Delhi Airport T3 arrivals to Gurugram (Cyber City, Golf Course Road and Sohna Road). More corridors follow."],
 ];
 
 const faqId = (q: string) => "faq-" + q.toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "").slice(0, 32);
@@ -141,6 +141,7 @@ export function Faq() {
         <div className="text-center">
           <p className="label">Questions</p>
           <h2 id="faq-title" className="display display-xl mt-5 text-[clamp(2.3rem,4.6vw,4rem)]">Before you <span className="serif-word text-glow">land</span>.</h2>
+          <p className="mx-auto mt-5 inline-block rounded-full border border-warn/40 px-4 py-1 text-xs text-warn">Draft policies · to be confirmed before launch</p>
         </div>
         <div className="mt-14">
           {FAQ.map(([q, a]) => (

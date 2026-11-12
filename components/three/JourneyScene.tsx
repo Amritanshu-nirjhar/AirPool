@@ -207,9 +207,27 @@ export default function JourneyScene({ progress, reduced, onFail, onReady }: { p
     let readySent = false;
     const tmpPos = new THREE.Vector3(), tmpLook = new THREE.Vector3();
 
+    // Adaptive quality: sample the first ~2 s of real frames. If the device is struggling, step down once
+    // (no bloom, 1× resolution, no shadows). Slow phones keep a smooth story instead of a stuttering one.
+    let sampleFrames = 0, sampleMs = 0, degraded = false;
+    const degrade = () => {
+      degraded = true;
+      bloom.enabled = false;
+      renderer.setPixelRatio(1);
+      renderer.shadowMap.enabled = false;
+      composer.setPixelRatio(1);
+      resize();
+    };
+
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
       if (!visible) return;
+      const frameMs = now - last;
+      if (!degraded && sampleFrames < 60 && frameMs > 0) {
+        sampleFrames++;
+        sampleMs += Math.min(frameMs, 500); // slow frames count (capped), so a struggling device is detected
+        if (sampleFrames === 60 && sampleMs / sampleFrames > 40) degrade(); // under ~25 fps on average
+      }
       const dt = Math.min(0.05, Math.max(0, now - last) / 1000);
       last = now;
       const time = reduced ? 0 : Math.max(0, now - start) / 1000;
