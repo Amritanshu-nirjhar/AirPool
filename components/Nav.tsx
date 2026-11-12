@@ -9,9 +9,9 @@ const LINKS = [
   ["MVP", "#mvp"],
   ["Safety", "#safety"],
   ["Demo", "#book"],
-  ["Matching", "#engine"],
-  ["FAQ", "#faq"],
 ] as const;
+// every section, for the "where am I" label beside the logo (Matching and FAQ live in the footer nav)
+const SECTIONS: Record<string, string> = { "#map": "How it works", "#mvp": "Launch scope", "#safety": "Safety", "#book": "Demo", "#engine": "Matching", "#faq": "FAQ" };
 
 /** AirPool "Converge" mark: two brass paths merge into one rising arrow — many travellers, one ride. */
 export function Mark({ size = 28, stem = "#0b2a23", brass = "#b8935a", foil = false }: { size?: number; stem?: string; brass?: string; foil?: boolean }) {
@@ -72,13 +72,17 @@ export default function Nav() {
       setActive(`#${e.target.id}`);
       if (!seen.has(e.target.id)) { seen.add(e.target.id); track("Section viewed", { section: e.target.id }); } // scroll depth
     }), { rootMargin: "-45% 0px -50% 0px" });
-    LINKS.forEach(([, h]) => { const el = document.querySelector(h); if (el) io.observe(el); });
+    Object.keys(SECTIONS).forEach((h) => { const el = document.querySelector(h); if (el) io.observe(el); });
     return () => { window.removeEventListener("scroll", f); io.disconnect(); };
   }, []);
   return (
     <nav className={`fixed inset-x-0 top-0 z-50 transition-[background-color,transform] duration-300 ${solid || open ? "glass !border-x-0 !border-t-0" : ""} ${hidden && !open ? "-translate-y-full" : ""}`} aria-label="Main" onFocus={() => setHidden(false)}>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-10">
-        <Logo />
+        <div className="flex items-center gap-3">
+          <Logo />
+          {/* where you are, once you've left the hero */}
+          <span className={`hidden border-l border-text/15 pl-3 text-sm text-muted transition-opacity duration-300 sm:block ${solid && SECTIONS[active] ? "opacity-100" : "opacity-0"}`} aria-hidden>{SECTIONS[active] ?? ""}</span>
+        </div>
         <ul className="hidden items-center gap-7 text-sm text-muted lg:flex">
           {LINKS.map(([l, h]) => (
             <li key={h}>

@@ -56,7 +56,7 @@ export function Kerbside() {
           ))}
         </ol>
       </motion.div>
-      <p className="mono mt-3 px-5 text-right text-[10px] text-muted md:px-10">Illustrative signage · pickup pillar is a demo value</p>
+      <p className="mt-3 px-5 text-right text-[10px] text-muted md:px-10">Illustrative signage · pickup pillar is a demo value</p>
     </section>
   );
 }
@@ -100,7 +100,7 @@ function SoloShared() {
         </div>
         <input type="range" min={5} max={95} value={v} onChange={(e) => setV(+e.target.value)} aria-label="Compare solo and shared fare" className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0" />
       </div>
-      <p className="mono mt-3 text-center text-[10px] text-muted">Drag to compare · illustrative fares from the pitch, not live quotes</p>
+      <p className="mt-3 text-center text-[10px] text-muted">Drag to compare · illustrative fares from the pitch, not live quotes</p>
     </div>
   );
 }
@@ -403,7 +403,7 @@ export function MobileCta() {
   const show = past && !covered;
   return (
     <div className={`fixed inset-x-3 bottom-3 z-40 transition-[transform,opacity] duration-300 md:hidden ${show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[130%] opacity-0"}`} aria-hidden={!show}>
-      <a href="#waitlist" tabIndex={show ? 0 : -1} onClick={() => track("Mobile CTA tapped")} className="flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-night px-5 text-paper shadow-[0_18px_40px_-16px_rgba(15,61,52,0.6)]">
+      <a href="#waitlist" tabIndex={show ? 0 : -1} onClick={() => track("Mobile CTA tapped")} className="flex min-h-[3.75rem] items-center justify-between gap-3 rounded-2xl bg-night px-5 text-[1.05rem] text-paper shadow-[0_18px_40px_-16px_rgba(15,61,52,0.6)]">
         <span className="flex items-center gap-2.5">
           <Mark size={20} stem="#f7f7f4" />
           <span className="leading-tight"><span className="block text-sm font-semibold">Get early access</span><span className="block text-[11px] text-paper/70">DEL T3 → Gurugram</span></span>

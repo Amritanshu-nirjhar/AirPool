@@ -75,9 +75,9 @@ body {
     color: var(--color-muted);
   }
   .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-    font-stretch: 87.5%;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
     color: var(--color-muted);
   }
 
@@ -394,6 +394,13 @@ body {
   background: var(--color-ink);
   color: var(--color-text);
   color-scheme: dark;
+}
+/* shared edge: a brass hairline wherever a night section meets paper (not between two night sections) */
+section.mood-night {
+  border-block: 1px solid rgb(201 160 99 / 0.45);
+}
+section.mood-night + section.mood-night {
+  border-top: 0;
 }
 .mood-night .btn-primary {
   background: linear-gradient(180deg, #e2c084, #b88d4c);

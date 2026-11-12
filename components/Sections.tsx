@@ -70,7 +70,7 @@ export function Safety() {
             <h2 id="safety-title" className="display display-xl mt-5 text-[clamp(2.3rem,5vw,4.4rem)]">Shared rides. Clear choices.</h2>
             <div className="mt-12 flex items-center justify-between text-sm">
               <span className="font-medium">Pre-flight checklist</span>
-              <span className="mono text-muted" aria-live="polite">{Math.min(checked, TRUST.length)} / {TRUST.length} checked</span>
+              <span className="text-muted" aria-live="polite">{Math.min(checked, TRUST.length)} / {TRUST.length} checked</span>
             </div>
             <ul className="mt-3 grid gap-x-10 sm:grid-cols-2">
               {TRUST.map(([t, d], i) => <CheckRow key={t} t={t} d={d} i={i} onCheck={() => setChecked((c) => c + 1)} />)}
@@ -214,24 +214,18 @@ export function Closing() {
         </div>
       </section>
       <footer className="mood-night border-t border-text/10">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 text-sm text-muted md:grid-cols-12 md:px-10">
-          <div className="md:col-span-4">
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-12 text-sm text-muted md:flex-row md:items-end md:justify-between md:px-10">
+          <div>
             <Logo tagline light />
-            <p className="mt-4 max-w-xs">Shared airport mobility. Demo corridor: Delhi Airport (DEL) T3 → Cyber City, Gurugram.</p>
-            <a href="#top" className="mt-6 inline-flex min-h-11 items-center gap-2 text-text hover:text-flare">Back to top <span aria-hidden>↑</span></a>
+            <p className="mt-4 max-w-md">Shared rides from Delhi Airport T3 to Gurugram. This is a demo: riders, groups and fares are simulated.</p>
           </div>
-          <div className="md:col-span-5">
-            <p className="text-text">About this demo</p>
-            <p className="mt-3 leading-relaxed">
-              Map tiles © OpenStreetMap contributors via OpenFreeMap. Road geometry from OSRM. Riders, groups, drivers, statuses and fares are simulated. No payments, dispatch or flight tracking.
-            </p>
-          </div>
-          <nav className="md:col-span-3" aria-label="Footer">
-            <ul className="space-y-2">
-              {[["How it works", "#map"], ["Launch scope", "#mvp"], ["Safety", "#safety"], ["Try the demo", "#book"], ["Matching", "#engine"], ["FAQ", "#faq"], ["Privacy", "/privacy"]].map(([l, h]) => (
-                <li key={h}><a href={h} className="hover:text-text">{l}</a></li>
+          <nav aria-label="Footer">
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              {[["Matching", "#engine"], ["FAQ", "#faq"], ["Privacy", "/privacy"], ["Back to top ↑", "#top"]].map(([l, h]) => (
+                <li key={h}><a href={h} className="inline-flex min-h-11 items-center hover:text-text">{l}</a></li>
               ))}
             </ul>
+            <p className="mt-2 text-xs text-muted/80">Map data © OpenStreetMap contributors · OpenFreeMap · OSRM</p>
           </nav>
         </div>
       </footer>

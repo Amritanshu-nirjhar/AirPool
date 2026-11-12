@@ -270,7 +270,7 @@ export default function CorridorMap({ group, youDest = "cyberCity", scene, progr
         // skeleton: the real route sketched on paper while tiles load
         <div className="absolute inset-0 bg-ink-2" role="status" aria-label="Loading map">
           <RouteSvg routeKey={group.routeKey} className="h-full w-full animate-pulse opacity-40" />
-          <p className="mono absolute bottom-4 left-4 text-[11px] text-muted">Loading map…</p>
+          <p className="absolute bottom-4 left-4 text-[11px] text-muted">Loading map…</p>
         </div>
       )}
 

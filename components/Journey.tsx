@@ -71,13 +71,10 @@ export default function Journey() {
     scrollToY(top + p * (el.offsetHeight - window.innerHeight));
   };
 
-  const board: [string, string, string?][] = [
-    ["From", "DEL T3 GATE 4"],
-    ["To", "CYBER CITY"],
+  const board: [string, string][] = [
     ["Road distance", `${(ROUTES.solo.distanceM / 1000).toFixed(1)} KM`],
-    ["Free-flow time", `${Math.round(ROUTES.solo.durationS / 60)} MIN`],
-    ["Travellers", "3 MATCHED", "Simulated"],
-    ["Est. share", "₹150 / PERSON", "Illustrative"],
+    ["Travellers", "3"],
+    ["Est. share", "₹150 EACH"],
   ];
   const reveal = (i: number) => ({
     className: "block transition-[transform,opacity] duration-[1100ms] ease-[cubic-bezier(.22,1,.36,1)]",
@@ -142,17 +139,15 @@ export default function Journey() {
             </div>
           </div>
           <div className="relative mx-auto w-full max-w-7xl px-5 pb-7 md:px-10">
-            <dl className="grid grid-cols-3 gap-x-4 gap-y-3 border-t border-text/10 pt-4 md:gap-x-6 md:gap-y-4 md:pt-5 lg:grid-cols-6">
-              {board.map(([k, v, note], i) => (
+            <dl className="grid max-w-2xl grid-cols-3 gap-x-4 border-t border-text/10 pt-4 md:gap-x-10 md:pt-5">
+              {board.map(([k, v], i) => (
                 <div key={k}>
                   <dt className="label">{k}</dt>
-                  <dd className="mono mt-1 text-[0.8rem] text-text md:mt-1.5 md:text-[0.95rem]">
-                    <Flap text={v} delay={1.6 + i * 0.12} reduced={reduced} />
-                    {note && <span className="label mt-1 block !text-[0.7rem] !text-warn/80">{note}</span>}
-                  </dd>
+                  <dd className="mono mt-1 text-[0.85rem] text-text md:mt-1.5 md:text-base"><Flap text={v} delay={1.6 + i * 0.12} reduced={reduced} /></dd>
                 </div>
               ))}
             </dl>
+            <p className="mt-3 text-xs text-warn">Demo data: matched travellers are simulated and the share is illustrative.</p>
             <p className="label mt-4 hidden md:block">Scroll to land ↓</p>
           </div>
         </div>
@@ -195,7 +190,7 @@ export default function Journey() {
           <div className="mx-auto max-w-7xl px-5 pb-12 md:px-10 md:pb-16">
             <p className="label">One road</p>
             <h2 className="display mt-4 max-w-[18ch] text-[clamp(2.2rem,5vw,4.6rem)]">Thousands of lights. One shared road home.</h2>
-            <p className="mt-5 max-w-lg text-muted">One car per group down the real {(ROUTES.solo.distanceM / 1000).toFixed(1)} km road to Cyber City. <span className="mono text-xs text-warn">Simulated groups · illustrative fare</span></p>
+            <p className="mt-5 max-w-lg text-muted">One car per group down the real {(ROUTES.solo.distanceM / 1000).toFixed(1)} km road to Cyber City. <span className="text-xs text-warn">Simulated groups, illustrative fare.</span></p>
           </div>
         </div>
       </div>

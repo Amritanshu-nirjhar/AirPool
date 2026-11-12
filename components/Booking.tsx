@@ -45,6 +45,7 @@ export default function Booking() {
   const [help, setHelp] = useState(false);
   const [toast, setToast] = useState("");
   const [mStep, setMStep] = useState(0); // mobile: one question per screen
+  const [mapOpen, setMapOpen] = useState<boolean | null>(null); // null = automatic: closed while filling the form, open once there are routes
   const request: TripRequest = useMemo(
     () => ({ id: "you", user: "You", airport: "DEL", terminal: "T3", destination: "cyberCity", windowStart: form.start, windowEnd: form.end, bags: form.bags, maxWait: form.maxWait, maxDetour: form.maxDetour, flight: form.flight || undefined, optIn: true }),
     [form],
@@ -59,6 +60,7 @@ export default function Booking() {
     : (screen === "details" || screen === "confirm" || screen === "status") && group ? group
     : SOLO_PREVIEW;
   const vehicle = screen === "status" ? 0.01 : 0;
+  const showMap = mapOpen ?? screen !== "request";
 
   useEffect(() => {
     if (!toast) return;
@@ -102,10 +104,10 @@ export default function Booking() {
       </div>
 
       {/* The console: live map + a paper kiosk, framed like one device */}
-      <div className="relative mx-auto max-w-7xl px-3 pb-28 md:px-10 md:pb-40">
-      <div className="grid overflow-hidden rounded-[28px] shadow-[0_60px_120px_-50px_rgba(0,0,0,0.85)] ring-1 ring-white/10 lg:grid-cols-12">
+      <div className="relative mx-auto max-w-3xl px-3 pb-28 md:px-10 md:pb-40">
+      <div className="grid overflow-hidden rounded-[28px] shadow-[0_60px_120px_-50px_rgba(0,0,0,0.85)] ring-1 ring-white/10">
         {/* Live map */}
-        <div className="relative order-2 min-h-[32svh] lg:order-none lg:col-span-7 lg:min-h-[46rem]">
+        {showMap && <div id="book-map" className="relative order-2 h-[32svh] md:order-none md:h-[22rem]">
           <LazyMount className="absolute inset-0">
             <CorridorMap group={mapGroup} compact progress={vehicle} className="h-full w-full" />
           </LazyMount>
@@ -114,16 +116,17 @@ export default function Booking() {
               {mapGroup.id === "solo" ? "DIRECT ROUTE · T3 → CYBER CITY" : `GRP ${mapGroup.id} · ${mapGroup.dropOrder.map((d) => PLACES[d].short.toUpperCase()).join(" → ")}`}
             </span>
           </div>
-        </div>
+        </div>}
 
         {/* Terminal panel (first on phones: the form matters more than the map) */}
-        <div className="mood-paper paper relative order-1 lg:order-none lg:col-span-5">
+        <div className="mood-paper paper relative order-1 md:order-none">
           <div>
             {/* header strip */}
-            <div className="mono flex items-center justify-between border-b border-text/10 px-5 py-3 text-[11px] text-muted md:px-8">
+            <div className="flex items-center justify-between border-b border-text/10 px-5 py-3 text-[11px] text-muted md:px-8">
               <span className="flex items-center gap-2"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-flare" />AIRPOOL · ARRIVALS T3</span>
               <span className="flex items-center gap-3">
                 <span className="hidden sm:inline">STEP {STEP_OF[screen] + 1}/4</span>
+                <button onClick={() => setMapOpen(!showMap)} aria-expanded={showMap} aria-controls="book-map" className="rounded border border-text/15 px-2.5 py-1 text-text hover:bg-text/5">{showMap ? "HIDE MAP" : "SHOW MAP"}</button>
                 <button onClick={() => setHelp(true)} className="rounded border border-text/15 px-2.5 py-1 text-text hover:bg-text/5">HELP</button>
               </span>
             </div>
@@ -141,17 +144,17 @@ export default function Booking() {
                         <div>
                           <p className="label">FROM</p>
                           <p className="mt-1 font-sans text-6xl font-bold tracking-[-0.04em]">DEL</p>
-                          <p className="mono mt-1 text-xs text-muted">T3 · ARRIVALS</p>
+                          <p className="mt-1 text-xs text-muted">T3 · ARRIVALS</p>
                         </div>
                         <svg viewBox="0 0 120 20" className="mb-8 w-24 text-flare" aria-hidden><path d="M2 10h110" stroke="currentColor" strokeDasharray="3 4" /><path d="M108 4l8 6-8 6" fill="none" stroke="currentColor" /></svg>
                         <div className="text-right">
                           <p className="label">TO</p>
                           <p className="mt-1 font-sans text-6xl font-bold tracking-[-0.04em]">CYB</p>
-                          <p className="mono mt-1 text-xs text-muted">CYBER CITY · GGN</p>
+                          <p className="mt-1 text-xs text-muted">CYBER CITY · GGN</p>
                         </div>
                       </div>
 
-                      <p className="mono mt-6 text-[11px] text-muted md:hidden">{t("question")} {mStep + 1} {t("of")} 4</p>
+                      <p className="mt-6 text-[11px] text-muted md:hidden">{t("question")} {mStep + 1} {t("of")} 4</p>
                       <div className={mStep === 0 ? "" : "max-md:hidden"}>
                       <Block label={t("kerbWindow")} value={`${fmtTime(form.start)} – ${fmtTime(form.end)}`}>
                         <WindowScrubber start={form.start} end={form.end} onChange={(start, end) => setForm({ ...form, start, end })} />
@@ -211,6 +214,11 @@ export default function Booking() {
                         <h3 className="display text-3xl">Shared departures</h3>
                         <span className="mono text-xs text-muted">{result.ranked.length}/{OPEN_GROUPS.length} FEASIBLE</span>
                       </div>
+                      {result.ranked[0] && (
+                        <p className="mt-3 text-lg leading-snug">
+                          {result.ranked.length} {result.ranked.length === 1 ? "group fits" : "groups fit"} your trip. The best one leaves at <span className="mono text-base">{fmtTime(OPEN_GROUPS.find((g) => g.id === result.ranked[0].groupId)!.departure)}</span> for <span className="mono text-base text-flare">{inr(result.ranked[0].share)}</span>.
+                        </p>
+                      )}
                       <p className="mono mt-2 text-[11px] text-muted">{fmtTime(form.start)}–{fmtTime(form.end)} · {form.bags} BAG · WAIT ≤{form.maxWait} · DETOUR ≤{form.maxDetour}</p>
 
                       <div className="mood-night mt-6 overflow-hidden rounded-xl bg-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
@@ -233,8 +241,8 @@ export default function Booking() {
                                 <div className="flex items-center justify-between gap-2 px-3 pb-3 pt-2">
                                   <span className="mono text-[10px] text-good">{i === 0 ? "● BEST MATCH" : "● MATCH"} · SCORE {m.score.toFixed(1)}</span>
                                   <span className="flex gap-1.5">
-                                    <button onClick={() => setWhyOpen(open ? null : m.groupId)} aria-expanded={open} className="mono min-h-9 rounded border border-text/15 px-2.5 text-[11px] hover:bg-text/5">WHY?</button>
-                                    <button onClick={() => { setGroupId(m.groupId); setScreen("details"); }} className="mono min-h-9 rounded bg-text px-3 text-[11px] font-semibold text-ink hover:bg-flare">VIEW GROUP →</button>
+                                    <button onClick={() => setWhyOpen(open ? null : m.groupId)} aria-expanded={open} className="min-h-9 rounded border border-text/15 px-2.5 text-[11px] hover:bg-text/5">WHY?</button>
+                                    <button onClick={() => { setGroupId(m.groupId); setScreen("details"); }} className="min-h-9 rounded bg-text px-3 text-[11px] font-semibold text-ink hover:bg-flare">VIEW GROUP →</button>
                                   </span>
                                 </div>
                                 {open && (
@@ -393,7 +401,7 @@ export default function Booking() {
                             <button onClick={share} className="btn btn-ghost">Share trip summary</button>
                           </div>
                           {record && <p className="mono mt-5 text-[10.5px] text-muted">CONSENT RECORDED {new Date(record.acceptedAt).toLocaleTimeString()} · TERMS {record.termsVersion}</p>}
-                          <p className="mono mt-3 text-[10.5px] text-muted">Demo: Help, Share and status only exist in this page. Nothing is sent or stored.</p>
+                          <p className="mt-3 text-[10.5px] text-muted">Demo: Help, Share and status only exist in this page. Nothing is sent or stored.</p>
                           <button onClick={reset} className="mt-3 min-h-11 text-sm text-muted underline-offset-4 hover:text-text hover:underline">Start a new trip</button>
                         </>
                       )}
@@ -526,7 +534,7 @@ function Seg({ options, value, onChange, label }: { options: number[]; value: nu
   );
 }
 function Back({ onClick, children }: { onClick: () => void; children: ReactNode }) {
-  return <button onClick={onClick} className="mono mb-5 -ml-1 flex min-h-9 items-center gap-1.5 px-1 text-xs text-muted hover:text-text"><span aria-hidden>←</span>{String(children).toUpperCase()}</button>;
+  return <button onClick={onClick} className="mb-5 -ml-1 flex min-h-9 items-center gap-1.5 px-1 text-xs text-muted hover:text-text"><span aria-hidden>←</span>{String(children).toUpperCase()}</button>;
 }
 function Bag() {
   return (

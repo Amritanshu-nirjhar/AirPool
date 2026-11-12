@@ -91,7 +91,7 @@ export default function MapStory() {
                     role="tab"
                     aria-selected={step === i}
                     onClick={() => jump(i)}
-                    className={`mono min-h-9 rounded-full border px-3 text-[11px] transition-colors ${step === i ? "border-flare bg-flare text-paper" : "border-text/15 bg-paper/70 text-muted hover:text-text"}`}
+                    className={`min-h-9 rounded-full border px-3 text-[11px] transition-colors ${step === i ? "border-flare bg-flare text-paper" : "border-text/15 bg-paper/70 text-muted hover:text-text"}`}
                   >
                     0{i + 1} {s.kicker}
                   </button>
@@ -200,7 +200,7 @@ function ScreenLanded() {
         <motion.span className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,rgba(166,118,58,0.28),transparent_28%)]" animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} />
         <span className="relative grid h-11 w-11 place-items-center rounded-full bg-night text-[11px] font-semibold text-paper">You</span>
       </div>
-      <p className="mono mt-4 text-center text-[10px] text-muted">Scanning your corridor…</p>
+      <p className="mt-4 text-center text-[10px] text-muted">Scanning your corridor…</p>
     </div>
   );
 }
@@ -225,7 +225,7 @@ function ScreenNearby() {
           </motion.li>
         ))}
       </ul>
-      <motion.p {...pop(4)} className="mono mt-4 text-center text-[10px] text-muted">+ 44 more requests in the pool · simulated</motion.p>
+      <motion.p {...pop(4)} className="mt-4 text-center text-[10px] text-muted">+ 44 more requests in the pool · simulated</motion.p>
     </div>
   );
 }
@@ -291,7 +291,7 @@ function ScreenRide() {
       <motion.a {...pop(5)} href="#book" className="pointer-events-auto mt-3 flex min-h-11 items-center justify-center rounded-2xl bg-flare text-[13px] font-semibold text-paper">
         Try booking it →
       </motion.a>
-      <p className="mono mt-2 text-center text-[9px] text-muted">Simulated group · illustrative fare</p>
+      <p className="mt-2 text-center text-[9px] text-muted">Simulated group · illustrative fare</p>
     </div>
   );
 }

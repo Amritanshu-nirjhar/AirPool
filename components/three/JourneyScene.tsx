@@ -262,7 +262,7 @@ export default function JourneyScene({ progress, reduced, onFail, onReady }: { p
 
       // Camera: orbit (A) → chase → oblique airfield (T) → up into the galaxy (B) → orbit constellations (C) → route vista (D)
       const theta = THREE.MathUtils.lerp(Math.PI * 0.27, Math.PI * 0.92, ease(pA)) + (reduced ? 0 : Math.sin(time * 0.12) * 0.08);
-      const radius = ((mobile ? 13 : 10) - pA * 2.5 + (1 - intro) * 7) * F;
+      const radius = ((mobile ? 13 : 8.2) - pA * 1.6 + (1 - intro) * 7) * F; // desktop: closer, so the aircraft is the hero
       const camOrbit = orbitCam(pos, theta, radius, THREE.MathUtils.lerp(-0.2, 1.6, pA) * F);
       const lookOrbit = pos.clone().addScaledVector(rwDir, pA * 2.5 * F);
       const eRise = ease(range(pT, 0.55, 1));
